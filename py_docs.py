@@ -12,7 +12,10 @@ class DatabaseDocument(object):
 		self.database = 'yaoxianzhi_2.1'
 		try:
 			self.conn = MySQLdb.connect(
+				host='',
+				port= 3306,
 				user='root',
+				passwd='',
 				db='information_schema', 
 				charset='utf8')
 			self.cursor = self.conn.cursor()
