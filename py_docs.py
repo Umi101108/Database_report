@@ -71,6 +71,28 @@ class DatabaseDocument(object):
 				row_cells[5].text = str(cols[5]) if cols[5] else ''
 			print "*"*20
 
+			self.cursor.execute("""
+				select INDEX_NAME, GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX ASC) AS COLUMNS
+				from information_schema.STATISTICS
+				where TABLE_SCHEMA = '%s' and TABLE_NAME = '%s'
+				group by TABLE_NAME, INDEX_NAME
+				order by TABLE_NAME, INDEX_NAME ASC
+				""" % (self.database, table[0]))
+			index_columns = self.cursor.fetchall()
+			if len(index_columns) != 0:
+				document.add_paragraph(u'')
+				index_table = document.add_table(rows=1, cols=2)
+				index_table.style = 'Table Grid'
+				index_table.allow_autofit = False
+				heading_cells = index_table.rows[0].cells
+				heading_cells[0].text = u'索引名称'
+				heading_cells[1].text = u'包含字段'
+
+				for cols in index_columns:
+					row_cells = index_table.add_row().cells
+					row_cells[0].text = cols[0]
+					row_cells[1].text = cols[1]
+
 		document.save(document_name + '_' + datetime.datetime.now().strftime('%Y%m%d') + '.docx')
 
 	def main(self):
